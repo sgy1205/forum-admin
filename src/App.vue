@@ -1,32 +1,48 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view/>
+    <Navbar />
+    <div class="body">
+      <Sidebar :menuList="simpleMenu" />
+      <router-view class="content" />
+    </div>
   </div>
 </template>
 
+<script>
+import Navbar from '@/components/Navbar.vue'
+import Sidebar from '@/components/Sidebar.vue'
+
+export default {
+  components: { Navbar, Sidebar },
+  computed: {
+    simpleMenu() {
+      return this.$router.options.routes.filter(r => r.meta)
+    }
+  }
+}
+</script>
+
 <style>
+html,
+body {
+  margin: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
 }
 
-nav {
-  padding: 30px;
+.body {
+  display: flex;
+  height: calc(100vh - 50px);
 }
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
+.sidebar {
+  flex-shrink: 0;   /* 防止被压缩 */
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
+.content {
+  flex: 1;
+  padding: 20px;
 }
 </style>
