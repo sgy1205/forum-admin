@@ -46,6 +46,12 @@ const routes = [
     meta: { title: '权限菜单', icon: 's-management' }
   },
   {
+    path: '/Role',
+    name: 'Role',
+    component: () => import('@/views/Role.vue'),
+    meta: { title: '角色管理', icon: 'user-solid' }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login.vue'),  // 假设新建了Login.vue

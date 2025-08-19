@@ -194,8 +194,12 @@ export default {
                 this.$axios({
                     method: 'delete',
                     url: `/forbiddenWord/${id}`
-                }).then(() => {
-                    this.$message.success('删除成功！');
+                }).then(res => {
+                    if (res.code == 200) {
+                        this.$message.success(res.msg || '删除成功');
+                    }else {
+                        this.$message.error(res.msg || '删除失败');
+                    }
                     this.getForbiddenWordList();
                 }).catch(() => {
                     this.$message.error('删除失败！');
@@ -219,8 +223,12 @@ export default {
                     method: this.dialog.mode === 'add' ? 'post' : 'put',
                     url: `/forbiddenWord`,
                     data: this.dialog.forbiddenWords
-                }).then(() => {
-                    this.$message.success(this.dialog.mode === 'add' ? '添加成功！' : '编辑成功！');
+                }).then(res => {
+                    if(res.code==200){
+                        this.$message.success(this.dialog.mode === 'add' ? '添加成功！' : '编辑成功！');
+                    }else {
+                        this.$message.error(this.dialog.mode === 'add' ? '添加失败！' : '编辑失败！');
+                    }
                     this.dialog.visible = false;
                     this.resetForm('dialogforbiddenWords');
                     this.getForbiddenWordList();

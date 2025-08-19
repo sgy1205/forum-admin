@@ -296,7 +296,10 @@ export default {
             }).then(res=>{
                 this.userList = res.rows;
                 this.pagination.total = res.total;
-            })
+            }).catch(err => {
+                console.error(err);
+                this.$message.error('获取用户列表失败');
+            });
         },
         // pageSize变化
         handleSizeChange(size) {
@@ -485,8 +488,12 @@ export default {
                         method:'post',
                         url:`/silence/setSilence`,
                         data: this.muteDialog.form
-                    }).then(() => {
-                    this.$message.success('禁言成功');
+                    }).then(res => {
+                    if (res.code == 200) {
+                        this.$message.success(res.msg || '禁言成功');
+                    } else {
+                        this.$message.error(res.msg || '禁言失败');
+                    }
                     this.getUserPageList();
                     this.handleReset();
                     this.muteDialog.visible = false;
@@ -506,8 +513,12 @@ export default {
                         method:'post',
                         url:`/silence/updateSilence`,
                         data: this.muteStatusDialog.form
-                    }).then(() => {
-                    this.$message.success('调整禁言成功');
+                    }).then(res => {
+                    if (res.code == 200) {
+                        this.$message.success(res.msg || '调整禁言成功');
+                    } else {
+                        this.$message.error(res.msg || '调整禁言失败');
+                    }
                     this.getUserPageList();
                     this.handleReset();
                     this.muteStatusDialog.visible = false;

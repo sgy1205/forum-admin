@@ -140,8 +140,12 @@ export default {
                 this.$axios({
                   method:'post',
                   url:`/postManager/recommend/${post.postId}`
-                }).then(() => {
-                    this.$message.success('取消推荐成功');
+                }).then(res => {
+                    if(res.code==200){
+                      this.$message.success(res.msg || '取消推荐成功');
+                    }else{
+                      this.$message.error(res.msg || '取消推荐失败');
+                    }
                     this.getPostList();
                 }).catch(err => {
                 });
@@ -163,8 +167,12 @@ export default {
                 this.$axios({
                   method:'delete',
                   url:`/postManager/deletePost/${post.postId}`
-                }).then(() => {
-                    this.$message.success('删除成功');
+                }).then(res => {
+                    if(res.code==200){
+                      this.$message.success(res.msg || '删除成功');
+                    }else{
+                      this.$message.error(res.msg || '删除失败');
+                    }
                     this.getPostList()
                 }).catch(err => {
                     console.error(err);

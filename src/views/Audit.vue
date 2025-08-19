@@ -133,7 +133,11 @@ export default {
                     auditStatus: status
                 }
             }).then(res => {
-                this.$message.success(res.msg);
+                if(res.code == 200){
+                    this.$message.success(res.msg);
+                }else{
+                    this.$message.error(res.msg || '操作失败');
+                }
                 this.getMixedList();
             }).catch(error => {
                 console.error('审核失败:', error);

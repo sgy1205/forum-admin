@@ -2,17 +2,16 @@
     <div class="app-container">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch">
             <el-form-item label="菜单名称" prop="menuName">
-                <el-input v-model="queryParams.menuName" placeholder="请输入菜单名称" clearable
-                    @keyup.enter.native="handleQuery" />
+                <el-input v-model="queryParams.menuName" placeholder="请输入菜单名称" @keyup.enter.native="handleQuery" />
             </el-form-item>
             <el-form-item label="状态" prop="status">
-                <el-select v-model="queryParams.status" placeholder="菜单状态" clearable>
+                <el-select v-model="queryParams.status" placeholder="菜单状态">
                     <el-option label="正常" value="0" />
                     <el-option label="禁用" value="1" />
                 </el-select>
             </el-form-item>
             <el-form-item label="菜单类型" prop="menuType">
-                <el-select v-model="queryParams.menuType" placeholder="菜单类型" clearable>
+                <el-select v-model="queryParams.menuType" placeholder="菜单类型">
                     <el-option label="目录" value="0" />
                     <el-option label="菜单" value="1" />
                     <el-option label="按钮" value="2" />
@@ -38,10 +37,9 @@
             </el-col>
         </el-row>
 
-        <!-- 关键修改：去掉show-overflow-tooltip，调整宽度让菜单名称完整显示 -->
         <el-table v-if="refreshTable" v-loading="loading" :data="menuList" row-key="menuId"
             :default-expand-all="isExpandAll" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
-            <el-table-column prop="menuName" label="菜单名称" width="200"></el-table-column>
+            <el-table-column prop="menuName" label="菜单名称" width="240"></el-table-column>
             <el-table-column label="菜单类型" width="100">
                 <template slot-scope="scope">
                     <el-tag v-if="scope.row.menuType === '0'" type="info">目录</el-tag>
@@ -49,9 +47,9 @@
                     <el-tag v-if="scope.row.menuType === '2'" type="primary">按钮</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column prop="icon" label="图标" align="center" width="100">
+            <el-table-column prop="icon" label="图标" align="center" width="200">
                 <template slot-scope="scope">
-                    <el-icon v-if="scope.row.icon" :class="scope.row.icon" />
+                    <i v-if="scope.row.icon" :class="`el-icon-${scope.row.icon}`" />
                 </template>
             </el-table-column>
             <el-table-column prop="perms" label="权限标识" width="200" :show-overflow-tooltip="true"></el-table-column>
@@ -105,15 +103,16 @@
                                     <el-input v-model="iconSearch" placeholder="搜索图标" prefix-icon="el-icon-search"
                                         size="small" class="mb-2" />
                                     <div class="icon-list">
-                                        <el-button v-for="icon in filteredIcons" :key="icon" type="text"
-                                            @click="selectIcon(icon)" size="small" class="icon-item">
-                                            <el-icon :class="icon" />
-                                            <span>{{ icon }}</span>
-                                        </el-button>
+                                        <!-- 图标在上、名称在下 -->
+                                        <div v-for="icon in filteredIcons" :key="icon" class="icon-item"
+                                            @click="selectIcon(icon)">
+                                            <i :class="icon" />
+                                            <span>{{ icon.replace('el-icon-', '') }}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <el-input slot="reference" v-model="form.icon" placeholder="点击选择图标" readonly>
-                                    <el-icon v-if="form.icon" :class="form.icon" slot="prefix" />
+                                    <i v-if="form.icon" :class="`el-icon-${form.icon}`" slot="prefix" />
                                     <i v-else slot="prefix" class="el-icon-search el-input__icon" />
                                 </el-input>
                             </el-popover>
@@ -221,7 +220,8 @@ export default {
     },
     methods: {
         selectIcon(icon) {
-            this.form.icon = icon;
+            const shortName = icon.replace(/^el-icon-/, '');
+            this.form.icon = shortName;
             this.iconPopoverVisible = false;
         },
 
@@ -248,8 +248,8 @@ export default {
         getList() {
             this.loading = true;
             this.$axios.get('/menu/directory', { params: this.queryParams })
-                .then(response => {
-                    this.menuList = this.handleTree(response.data, 'menuId');
+                .then(res => {
+                    this.menuList = this.handleTree(res.data, 'menuId');
                 })
                 .catch(error => {
                     console.error('获取菜单列表失败：', error);
@@ -270,23 +270,29 @@ export default {
                 children: node.children
             };
         },
-
-        // 关键修改：去掉code校验，直接处理响应数据
-        getTreeselect() {
+        getTreeselect(menuId) {
             this.$axios.get('/menu/menuList')
-                .then(response => {
-                    const menuData = response.data;
-                    this.menuOptions = [];
-                    const rootMenu = { menuId: 0, menuName: '顶级菜单', children: [] };
-                    rootMenu.children = this.handleTree(menuData, 'menuId');
-                    this.menuOptions.push(rootMenu);
+                .then(res => {
+                    // 递归禁用与当前菜单同名的节点
+                    const disableSameName = (list = []) => {
+                        return list.map(item => ({
+                            ...item,
+                            isDisabled: item.menuId === menuId,
+                            children: item.children ? disableSameName(item.children) : []
+                        }));
+                    };
+
+                    // 构造树
+                    const treeData = disableSameName(res.data);
+                    this.menuOptions = [
+                        { menuId: 0, menuName: '顶级菜单', children: treeData }
+                    ];
                 })
                 .catch(error => {
                     console.error('获取菜单树失败：', error);
                     this.$message.error('获取菜单树失败');
                 });
         },
-
         cancel() {
             this.open = false;
             this.reset();
@@ -337,13 +343,12 @@ export default {
             });
         },
 
-        // 关键修改：去掉code校验，直接处理响应数据
         handleUpdate(row) {
             this.reset();
-            this.getTreeselect();
+            this.getTreeselect(row.menuId);
             this.$axios.get(`/menu/${row.menuId}`)
-                .then(response => {
-                    this.form = response.data;
+                .then(res => {
+                    this.form = res.data;
                     this.open = true;
                     this.title = "修改菜单";
                 })
@@ -356,19 +361,18 @@ export default {
         submitForm() {
             this.$refs["form"].validate(valid => {
                 if (valid) {
-                    const request = this.form.menuId 
-                        ? { method: 'put', url: '/menu', data: this.form } 
+                    const request = this.form.menuId
+                        ? { method: 'put', url: '/menu', data: this.form }
                         : { method: 'post', url: '/menu', data: this.form };
 
                     this.$axios(request)
-                        .then(response => {
-                            const { code, msg } = response.data;
-                            if (code === 200) {
-                                this.$message.success(msg || '操作成功');
+                        .then(res => {
+                            if (res.code === 200) {
+                                this.$message.success(res.msg || '操作成功');
                                 this.open = false;
                                 this.getList();
                             } else {
-                                this.$message.error(msg || '操作失败');
+                                this.$message.error(res.msg || '操作失败');
                             }
                         })
                         .catch(error => {
@@ -383,13 +387,12 @@ export default {
             this.$confirm(`是否确认删除名称为"${row.menuName}"的菜单？`)
                 .then(() => {
                     this.$axios.delete(`/menu/${row.menuId}`)
-                        .then(response => {
-                            const { code, msg } = response.data;
-                            if (code === 200) {
-                                this.$message.success(msg || '删除成功');
+                        .then(res => {
+                            if (res.code === 200) {
+                                this.$message.success(res.msg || '删除成功');
                                 this.getList();
                             } else {
-                                this.$message.error(msg || '删除失败');
+                                this.$message.error(res.msg || '删除失败');
                             }
                         })
                         .catch(error => {
@@ -422,18 +425,21 @@ export default {
     overflow-y: auto;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 15px;
 }
 
+/* 图标在上、名称在下 */
 .icon-item {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 80px;
     height: 70px;
     padding: 5px;
     border: 1px solid #f0f0f0;
     border-radius: 4px;
+    cursor: pointer;
     transition: all 0.3s;
 }
 
@@ -442,9 +448,9 @@ export default {
     border-color: #dcdfe6;
 }
 
-.icon-item .el-icon {
+.icon-item i {
     font-size: 24px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .icon-item span {

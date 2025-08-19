@@ -8,7 +8,7 @@
       <Sidebar :menuList="simpleMenu" class="sidebar-fixed" v-if="!$route.meta.hiddenSidebar" />
       <!-- 内容容器：动态调整左侧margin -->
       <div class="content-container">
-        <router-view class="content" />
+        <router-view class="content" :style="{'padding': $route.meta.hiddenNavbar ? '0' : '50px'}"/>
       </div>
     </div>
   </div>
@@ -86,9 +86,5 @@ body {
   height: 100%;
   overflow-y: auto;
   /* 内容区域可滚动 */
-}
-
-.content {
-  padding: 50px;
 }
 </style>
