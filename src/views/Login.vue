@@ -87,7 +87,7 @@ export default {
           this.$axios({
             method: 'post',
             url: '/login',
-            params: {
+            data: {
               loginStr: this.loginForm.username,
               password: this.loginForm.password
             }

@@ -4,18 +4,9 @@
       <div slot="header" class="clearfix">
         <span>开发团队信息</span>
       </div>
-      <div
-        v-for="(value, key) in developerTeam"
-        :key="key"
-        class="text item"
-      >
+      <div v-for="(value, key) in developerTeam" :key="key" class="text item">
         <div class="key">{{ key }}:</div>
-        <a
-          class="value"
-          :href="value"
-          target="_blank"
-          rel="noopener"
-        >
+        <a class="value" :href="value" target="_blank" rel="noopener">
           {{ value }}
         </a>
       </div>
@@ -26,13 +17,13 @@
 <script>
 export default {
   name: 'Index',
-  data () {
+  data() {
     return {
       developerTeam: {
         OfficialSite: 'https://example.com',
-        DevTeam:      'https://devteam.example.com',
-        GitHub:       'https://github.com/example',
-        Gitee:        'https://gitee.com/example'
+        DevTeam: 'https://devteam.example.com',
+        GitHub后端: 'https://github.com/sgy1205/forum.git',
+        GitHub前端: 'https://github.com/sgy1205/forum-admin.git'
       }
     }
   }
@@ -46,7 +37,9 @@ body.dark {
     border: 0 !important;
     color: #fff !important;
 
-    .el-card__header { border-bottom: 1px solid #444 !important; }
+    .el-card__header {
+      border-bottom: 1px solid #444 !important;
+    }
   }
 }
 
@@ -55,16 +48,31 @@ body.dark {
   display: flex;
   gap: 10px;
 
-  .key   { font-weight: bold; }
-  a      { color: #a374ff; text-decoration: underline; }
+  .key {
+    font-weight: bold;
+  }
+
+  a {
+    color: #a374ff;
+    text-decoration: underline;
+  }
 }
 
-.item { margin-bottom: 18px; }
+.item {
+  margin-bottom: 18px;
+}
 
 .clearfix {
+
   &:before,
-  &:after { display: table; content: ''; }
-  &:after { clear: both; }
+  &:after {
+    display: table;
+    content: '';
+  }
+
+  &:after {
+    clear: both;
+  }
 }
 
 .box-card {
