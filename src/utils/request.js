@@ -28,12 +28,18 @@ request.interceptors.response.use(
       // 如果响应状态码为401，表示未授权，重定向到登录页面
       router.replace('/login')
       Message.error('未登录，请先登录')
-    }
-    if (res.data.code == 500) {
+    }else if (res.data.code == 500) {
       // 如果响应状态码不是200，表示请求失败，显示错误信息
       Message.error(res.data.msg || '请求失败，请稍后再试')
+      return Promise.reject(res.data);
+    }else if(res.data.code == 200){
+      return res.data
+    }else if(res.data.code == 403){
+      router.replace('/index')
+      Message.error(res.data.msg || '请求失败，请稍后再试')
+    }else{
+      return Promise.reject(res.data);
     }
-    return res.data
   }
 )
 

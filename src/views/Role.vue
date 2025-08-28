@@ -143,7 +143,7 @@
             show-checkbox
             ref="menuTree"
             node-key="id"
-            :check-strictly="!form.menuCheckStrictly"
+            :check-strictly="form.menuCheckStrictly"
             empty-text="加载中，请稍候"
             :props="defaultProps"
           ></el-tree>
@@ -203,7 +203,7 @@ export default {
         roleSort: 0,
         status: "0",
         menuIds: [],
-        menuCheckStrictly: false, // 父子联动关闭
+        menuCheckStrictly: false, // 父子联动开启
         remark: undefined
       },
       // 树结构配置
