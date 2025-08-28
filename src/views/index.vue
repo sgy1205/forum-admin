@@ -20,10 +20,10 @@ export default {
   data() {
     return {
       developerTeam: {
-        OfficialSite: 'https://example.com',
         DevTeam: 'https://devteam.example.com',
         GitHub后端: 'https://github.com/sgy1205/forum.git',
-        GitHub前端: 'https://github.com/sgy1205/forum-admin.git'
+        GitHub前端用户端: 'https://github.com/sgy1205/forum-web.git',
+        GitHub前端后台管理: 'https://github.com/sgy1205/forum-admin.git'
       }
     }
   }
